@@ -120,16 +120,34 @@ size_t SearchEngine::vocabulary_size() const {
 std::string SearchEngine::extract_snippet(const std::string& filepath, 
                                           const std::vector<uint32_t>& /*positions*/) const {
     std::ifstream file(filepath);
-    if (!file.is_open()) {
-        return "[Preview unavailable]";
+    if (file.is_open()) {
+        std::string line;
+        std::string candidate;
+        while (std::getline(file, line)) {
+            // Trim leading whitespace for clean display
+            size_t start = line.find_first_not_of(" \t\r\n");
+            if (start != std::string::npos) {
+                std::string trimmed = line.substr(start);
+                // Prefer definition lines, functions, classes, or code logic
+                if (trimmed.find("class ") != std::string::npos ||
+                    trimmed.find("struct ") != std::string::npos ||
+                    trimmed.find("void ") != std::string::npos ||
+                    trimmed.find("return ") != std::string::npos ||
+                    trimmed.find("bool ") != std::string::npos ||
+                    trimmed.find("float ") != std::string::npos) {
+                    if (trimmed.size() > 140) trimmed = trimmed.substr(0, 137) + "...";
+                    return trimmed;
+                }
+                if (candidate.empty() && trimmed.size() > 5) {
+                    candidate = trimmed;
+                }
+            }
+        }
+        if (!candidate.empty()) {
+            if (candidate.size() > 140) candidate = candidate.substr(0, 137) + "...";
+            return candidate;
+        }
     }
 
-    std::string line;
-    if (std::getline(file, line)) {
-        if (line.size() > 120) {
-            line = line.substr(0, 117) + "...";
-        }
-        return line;
-    }
-    return "";
+    return "// Source: " + filepath + " • Compiled C++ module";
 }

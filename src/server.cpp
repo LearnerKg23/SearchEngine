@@ -227,18 +227,63 @@ int main(int argc, char* argv[]) {
 
     std::cout << "[*] Initializing C++ Search Engine...\n";
     SearchEngine engine(index_dir);
-    if (!engine.load()) {
-        std::cout << "[*] Building initial index with sample documents...\n";
-        engine.add_document(0, "src/network/http_server.cpp", 1700000000,
-            "class HttpServer { void parseHttpRequest(const std::string& buffer); }; // High performance socket server");
-        engine.add_document(1, "include/network/http_parser.hpp", 1700000001,
-            "bool parseHttpRequest(const char* data, size_t length); // Fast HTTP request parsing routine");
-        engine.add_document(2, "src/index/inverted_index.cpp", 1700000002,
-            "class PositionalInvertedIndex { void insert(uint32_t doc_id, uint32_t position); }; // Binary disk index");
-        engine.add_document(3, "src/query/bm25_ranker.cpp", 1700000003,
-            "float compute_bm25_score(uint32_t tf, uint32_t doc_length, float idf); // Min-Heap Top-K ranking algorithm");
-        engine.add_document(4, "src/autocomplete/trie.cpp", 1700000004,
-            "class AutocompleteTrie { std::vector<std::string> get_completions(const std::string& prefix); };");
+    if (!engine.load() || engine.total_documents() < 10) {
+        std::cout << "[*] Building initial index with repository source code & algorithms...\n";
+        
+        std::vector<std::string> files_to_index = {
+            "include/common/types.hpp",
+            "include/tokenizer/tokenizer.hpp",
+            "src/tokenizer.cpp",
+            "include/index/posting_list.hpp",
+            "include/index/index_writer.hpp",
+            "src/index_writer.cpp",
+            "include/index/index_reader.hpp",
+            "src/index_reader.cpp",
+            "include/query/boolean_retriever.hpp",
+            "src/boolean_retriever.cpp",
+            "include/query/phrase_matcher.hpp",
+            "src/phrase_matcher.cpp",
+            "include/query/query_parser.hpp",
+            "src/query_parser.cpp",
+            "include/query/bm25_ranker.hpp",
+            "src/bm25_ranker.cpp",
+            "include/autocomplete/trie.hpp",
+            "src/trie.cpp",
+            "include/index/manifest.hpp",
+            "src/manifest.cpp",
+            "include/engine.hpp",
+            "src/engine.cpp",
+            "src/main.cpp",
+            "src/server.cpp",
+            "milestones/00_MASTER_ROADMAP.md",
+            "milestones/milestone_1_tokenization_and_core_types.md",
+            "milestones/milestone_2_positional_inverted_index_and_storage.md",
+            "milestones/milestone_3_boolean_retrieval_and_phrase_search.md",
+            "milestones/milestone_4_bm25_ranking_and_min_heap_top_k.md",
+            "milestones/milestone_5_trie_autocomplete.md",
+            "milestones/milestone_6_incremental_indexing_and_tombstones.md",
+            "milestones/milestone_7_benchmarks_and_cli.md",
+            "README.md"
+        };
+
+        doc_id_t doc_id = 0;
+        for (const auto& path : files_to_index) {
+            std::ifstream file(path);
+            if (file.is_open()) {
+                std::string content((std::istreambuf_iterator<char>(file)),
+                                    std::istreambuf_iterator<char>());
+                engine.add_document(doc_id++, path, 1700000000 + doc_id, content);
+            }
+        }
+
+        // Also index standard algorithmic modules
+        engine.add_document(doc_id++, "algorithms/binary_search.cpp", 1700000050,
+            "template<typename T> int binary_search(const std::vector<T>& arr, T target) { int low = 0, high = arr.size() - 1; while (low <= high) { int mid = low + (high - low) / 2; if (arr[mid] == target) return mid; } return -1; }");
+        engine.add_document(doc_id++, "algorithms/min_heap_top_k.cpp", 1700000051,
+            "std::priority_queue<ScoredDoc, std::vector<ScoredDoc>, std::greater<ScoredDoc>> min_heap; // O(N log K) bounded Top-K retrieval for BM25 ranking");
+        engine.add_document(doc_id++, "networking/http_parser.cpp", 1700000052,
+            "void parseHttpRequest(const std::string& buffer) { std::istringstream stream(buffer); std::string method, path; stream >> method >> path; } // Fast HTTP socket handler");
+
         engine.commit();
     }
     std::cout << "[+] Search Engine ready (" << engine.total_documents() << " docs loaded).\n";
