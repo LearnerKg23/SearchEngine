@@ -3,315 +3,333 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HyperSearch // High-Performance C++ Search Engine</title>
+  <title>SearchEngine // High-Performance C++ Code Search</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #060911;
-      --card-bg: rgba(13, 19, 33, 0.7);
-      --card-hover: rgba(20, 28, 48, 0.85);
-      --border: rgba(255, 255, 255, 0.08);
-      --border-accent: rgba(56, 189, 248, 0.4);
-      --primary: #38BDF8;
-      --primary-glow: rgba(56, 189, 248, 0.25);
-      --indigo: #818CF8;
-      --accent: #10B981;
-      --accent-glow: rgba(16, 185, 129, 0.2);
-      --text: #F8FAFC;
-      --text-muted: #94A3B8;
-      --text-dim: #64748B;
-      --code-bg: #050811;
-      --card-radius: 16px;
+      --bg-warm: #F4EFE6;
+      --bg-cream-tint: #FAF6EF;
+      --card-bg: #FFFFFF;
+      --primary-green: #48A868;
+      --primary-green-hover: #3E945A;
+      --green-subtle: #EBF7EE;
+      --green-border: rgba(72, 168, 104, 0.25);
+      --text-dark: #121517;
+      --text-body: #4B5259;
+      --text-muted: #858C94;
+      --border-warm: rgba(24, 28, 33, 0.08);
+      --border-subtle: rgba(24, 28, 33, 0.04);
+      --code-bg: #161A1D;
+      --shadow-sm: 0 4px 12px rgba(35, 29, 20, 0.04);
+      --shadow-md: 0 12px 36px rgba(35, 29, 20, 0.06);
+      --shadow-lg: 0 20px 48px rgba(35, 29, 20, 0.09);
+      --radius-pill: 9999px;
+      --radius-card: 24px;
+      --radius-inner: 16px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: var(--bg-warm);
+      color: var(--text-dark);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      background-image: 
-        radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 85% 15%, rgba(129, 140, 248, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.06) 0%, transparent 50%);
-      background-attachment: fixed;
-      padding: 0 20px 60px 20px;
+      padding: 0 24px 80px 24px;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Top Navigation */
-    nav {
+    /* Top Header Navigation */
+    header.site-header {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1140px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 24px 0 40px 0;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 40px;
+      padding: 28px 0;
+      margin-bottom: 32px;
     }
 
-    .brand {
+    .brand-group {
       display: flex;
       align-items: center;
       gap: 12px;
       text-decoration: none;
-      color: var(--text);
+      color: var(--text-dark);
     }
 
     .brand-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #0EA5E9, #6366F1);
-      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      background: var(--text-dark);
+      border-radius: var(--radius-pill);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+      color: #FFFFFF;
+      transition: transform 0.2s ease;
     }
 
-    .brand-title {
+    .brand-group:hover .brand-icon {
+      transform: scale(1.05);
+    }
+
+    .brand-name {
       font-weight: 800;
       font-size: 1.15rem;
       letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #FFFFFF 40%, #94A3B8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text-dark);
+      text-transform: uppercase;
     }
 
-    .brand-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 6px;
-      color: var(--primary);
-    }
-
-    .nav-actions {
+    .header-actions {
       display: flex;
       align-items: center;
       gap: 14px;
     }
 
-    .status-pill {
+    .pill-status {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary-green);
+      background: var(--green-subtle);
+      border: 1px solid var(--green-border);
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #34D399;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.2);
-      padding: 6px 14px;
-      border-radius: 9999px;
     }
 
     .pulse-dot {
-      width: 7px;
-      height: 7px;
-      background-color: #10B981;
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary-green);
       border-radius: 50%;
-      box-shadow: 0 0 10px #10B981;
       animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
       0% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.3); }
+      50% { opacity: 0.4; transform: scale(1.25); }
       100% { opacity: 1; transform: scale(1); }
     }
 
-    .github-btn {
+    .github-link {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      background: var(--card-bg);
+      border: 1px solid var(--border-warm);
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      text-decoration: none;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      padding: 7px 14px;
-      border-radius: 10px;
-      text-decoration: none;
-      transition: all 0.2s ease;
     }
 
-    .github-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.2);
+    .github-link:hover {
+      background: #FFFFFF;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
     }
 
     /* Main Container */
-    .container {
+    main.content-wrapper {
       width: 100%;
-      max-width: 920px;
+      max-width: 980px;
       display: flex;
       flex-direction: column;
-      gap: 28px;
+      align-items: center;
+      gap: 36px;
     }
 
-    /* Hero Section */
-    .hero {
+    /* Hero Headline */
+    .hero-badge-pill {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dark);
+      background: rgba(24, 28, 33, 0.06);
+      padding: 6px 16px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 8px;
+    }
+
+    .hero-headline {
+      font-size: 4rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
       text-align: center;
-      margin-bottom: 6px;
+      color: var(--text-dark);
+      max-width: 850px;
     }
 
-    .hero h1 {
-      font-size: 2.75rem;
+    .hero-headline .pill-tag {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      background: var(--primary-green);
+      color: #FFFFFF;
+      font-size: 1.3rem;
       font-weight: 800;
-      letter-spacing: -0.035em;
-      line-height: 1.15;
-      background: linear-gradient(135deg, #FFFFFF 30%, #BAE6FD 70%, #818CF8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
+      padding: 4px 18px;
+      border-radius: var(--radius-pill);
+      margin: 0 4px;
+      letter-spacing: -0.01em;
     }
 
-    .hero p {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      max-width: 680px;
-      margin: 0 auto;
+    .hero-subtitle {
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--text-body);
+      text-align: center;
+      max-width: 640px;
       line-height: 1.5;
+      margin-top: 4px;
     }
 
-    /* Search Bar Wrapper */
-    .search-wrapper {
-      position: relative;
+    /* Floating Search Card */
+    .search-card {
       width: 100%;
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
     }
 
-    .search-container {
-      position: relative;
+    .search-input-row {
       display: flex;
       align-items: center;
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 18px;
-      padding: 6px 14px 6px 20px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .search-container:focus-within {
-      border-color: var(--border-accent);
-      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6), 0 0 0 3px var(--primary-glow);
-      background: rgba(15, 23, 42, 0.85);
-    }
-
-    .search-icon-svg {
-      color: var(--primary);
-      flex-shrink: 0;
-      margin-right: 14px;
+      gap: 14px;
+      position: relative;
     }
 
     .search-input {
-      width: 100%;
-      background: transparent;
+      flex: 1;
       border: none;
       outline: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: #FFFFFF;
-      padding: 12px 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      padding: 12px 6px;
+      background: transparent;
     }
 
     .search-input::placeholder {
-      color: var(--text-dim);
-      font-weight: 400;
+      color: var(--text-muted);
+      font-weight: 500;
     }
 
-    .search-shortcut {
+    .btn-search {
+      background: var(--primary-green);
+      color: #FFFFFF;
+      border: none;
+      outline: none;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      box-shadow: 0 6px 16px rgba(72, 168, 104, 0.3);
+      transition: all 0.2s ease;
     }
 
-    .kbd {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      font-weight: 600;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 4px 8px;
-      border-radius: 6px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    .btn-search:hover {
+      background: var(--primary-green-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(72, 168, 104, 0.4);
     }
 
     /* Autocomplete Dropdown */
     .autocomplete-dropdown {
       position: absolute;
-      top: calc(100% + 8px);
+      top: 100%;
       left: 0;
       right: 0;
-      background: rgba(13, 20, 36, 0.95);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border-accent);
-      border-radius: 14px;
+      background: #FFFFFF;
+      border-radius: var(--radius-inner);
+      box-shadow: 0 20px 48px rgba(35, 29, 20, 0.12);
+      border: 1px solid var(--border-warm);
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-      z-index: 50;
+      margin-top: 8px;
+      z-index: 100;
       display: none;
     }
 
     .autocomplete-header {
-      padding: 8px 16px;
-      font-size: 0.7rem;
-      font-weight: 700;
+      padding: 10px 18px;
+      font-size: 0.72rem;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--text-dim);
-      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      background: var(--bg-cream-tint);
+      border-bottom: 1px solid var(--border-warm);
       display: flex;
       justify-content: space-between;
     }
 
     .autocomplete-item {
-      padding: 12px 18px;
+      padding: 12px 20px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.92rem;
-      color: #E2E8F0;
+      font-weight: 500;
+      color: var(--text-dark);
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: background 0.15s, color 0.15s;
+      transition: background 0.15s;
     }
 
     .autocomplete-item:hover, .autocomplete-item.active {
-      background: rgba(56, 189, 248, 0.12);
-      color: var(--primary);
+      background: var(--green-subtle);
+      color: var(--primary-green-hover);
     }
 
-    .autocomplete-item .match-text {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .autocomplete-tag {
+    .autocomplete-item .tag {
       font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-dim);
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(24, 28, 33, 0.04);
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
     }
 
-    /* Example Query Chips */
-    .chips-row {
+    /* Search Filters & Example Queries */
+    .search-footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .chips-group {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -320,404 +338,403 @@
 
     .chips-label {
       font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-dim);
-      margin-right: 4px;
-    }
-
-    .chip {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
-      padding: 5px 12px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: #CBD5E1;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .chip:hover {
-      background: rgba(56, 189, 248, 0.1);
-      border-color: rgba(56, 189, 248, 0.3);
-      color: var(--primary);
-      transform: translateY(-1px);
-    }
-
-    /* Telemetry Dashboard Grid */
-    .telemetry-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-
-    .telemetry-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      transition: border-color 0.2s;
-    }
-
-    .telemetry-card:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .telemetry-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-dim);
-    }
-
-    .telemetry-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.1rem;
       font-weight: 700;
-      color: var(--text);
-    }
-
-    .telemetry-value.accent-green {
-      color: #34D399;
-    }
-
-    .telemetry-value.accent-cyan {
-      color: #38BDF8;
-    }
-
-    .telemetry-sub {
-      font-size: 0.7rem;
-      color: var(--text-dim);
-    }
-
-    /* Results Header */
-    .results-meta-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 2px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .results-count {
-      font-size: 0.9rem;
-      font-weight: 600;
       color: var(--text-muted);
     }
 
-    .results-speed {
+    .query-chip {
+      background: var(--bg-cream-tint);
+      border: 1px solid var(--border-warm);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 600;
-      color: #34D399;
-      background: rgba(16, 185, 129, 0.1);
-      padding: 3px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--text-dark);
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: all 0.15s ease;
     }
 
-    /* Results Container & Cards */
-    .results-container {
+    .query-chip:hover {
+      background: var(--green-subtle);
+      border-color: var(--green-border);
+      color: var(--primary-green);
+      transform: translateY(-1px);
+    }
+
+    /* Architecture Features Bar */
+    .architecture-ticker {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: var(--radius-inner);
+      border: 1px solid var(--border-warm);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+
+    .ticker-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--primary-green);
+      border-radius: 50%;
+    }
+
+    /* 3 Bottom Feature Cards */
+    .features-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 10px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--bg-cream-tint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+
+    .feature-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+    }
+
+    .feature-desc {
+      font-size: 0.9rem;
+      color: var(--text-body);
+      line-height: 1.5;
+    }
+
+    /* Results Header & Cards */
+    .results-wrapper {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .results-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .results-count-text {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .latency-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary-green);
+      background: var(--green-subtle);
+      border: 1px solid var(--green-border);
+      padding: 4px 14px;
+      border-radius: var(--radius-pill);
     }
 
     .result-card {
       background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: var(--card-radius);
-      padding: 20px;
+      border-radius: var(--radius-card);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      gap: 14px;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .result-card:hover {
-      background: var(--card-hover);
-      border-color: rgba(56, 189, 248, 0.25);
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      box-shadow: var(--shadow-md);
     }
 
-    .result-header {
+    .result-top-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
     }
 
-    .result-path-group {
+    .result-path-info {
       display: flex;
       align-items: center;
       gap: 10px;
-      overflow: hidden;
     }
 
-    .rank-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-dim);
-      background: rgba(255, 255, 255, 0.05);
-      padding: 3px 8px;
-      border-radius: 6px;
-      flex-shrink: 0;
-    }
-
-    .file-icon-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      flex-shrink: 0;
-    }
-
-    .file-icon-badge.cpp { background: rgba(56, 189, 248, 0.15); color: #38BDF8; }
-    .file-icon-badge.hpp { background: rgba(168, 85, 247, 0.15); color: #C084FC; }
-    .file-icon-badge.md  { background: rgba(234, 179, 8, 0.15); color: #FACC15; }
-
-    .result-path {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: #E2E8F0;
-      text-decoration: none;
-      word-break: break-all;
-    }
-
-    .score-badge {
+    .rank-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--bg-cream-tint);
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.75rem;
-      font-weight: 600;
-      color: #93C5FD;
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.25);
-      padding: 4px 10px;
-      border-radius: 8px;
-      flex-shrink: 0;
+      font-weight: 700;
+      color: var(--text-dark);
     }
 
-    .code-preview-window {
+    .file-path-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .bm25-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary-green);
+      background: var(--green-subtle);
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--green-border);
+    }
+
+    .code-preview-box {
       background: var(--code-bg);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .code-preview-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 14px;
-      background: rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      font-size: 0.72rem;
-      color: var(--text-dim);
+      border-radius: var(--radius-inner);
+      padding: 14px 18px;
+      color: #F8FAFC;
       font-family: 'JetBrains Mono', monospace;
-    }
-
-    .code-content {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      color: #E2E8F0;
-      padding: 12px 16px;
+      font-size: 0.88rem;
       overflow-x: auto;
       white-space: pre;
       line-height: 1.5;
     }
 
-    .highlight-term {
-      background: rgba(251, 191, 36, 0.25);
-      color: #FDE047;
+    .highlight-match {
+      background: rgba(72, 168, 104, 0.4);
+      color: #A7F3D0;
       font-weight: 700;
       padding: 1px 4px;
-      border-radius: 3px;
+      border-radius: 4px;
     }
 
-    .empty-state {
+    .empty-results-box {
       text-align: center;
-      padding: 60px 20px;
+      padding: 50px 20px;
       background: var(--card-bg);
-      border: 1px dashed var(--border);
-      border-radius: var(--card-radius);
+      border-radius: var(--radius-card);
+      border: 1px dashed var(--border-warm);
       color: var(--text-muted);
-    }
-
-    .empty-icon {
-      font-size: 2.2rem;
-      margin-bottom: 12px;
-      opacity: 0.6;
+      font-size: 0.95rem;
     }
 
     /* Footer */
-    footer {
+    footer.site-footer {
       width: 100%;
-      max-width: 920px;
-      margin-top: 40px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
+      max-width: 1140px;
+      margin-top: 60px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border-warm);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.82rem;
-      color: var(--text-dim);
+      font-size: 0.85rem;
+      color: var(--text-muted);
     }
 
     footer a {
-      color: var(--primary);
+      color: var(--text-dark);
+      font-weight: 700;
       text-decoration: none;
     }
 
     @media (max-width: 768px) {
-      .telemetry-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .hero h1 {
-        font-size: 2rem;
-      }
+      .hero-headline { font-size: 2.75rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .architecture-ticker { justify-content: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation -->
-  <nav>
-    <a href="/" class="brand">
+  <!-- Header -->
+  <header class="site-header">
+    <a href="/" class="brand-group">
       <div class="brand-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
       </div>
-      <div>
-        <span class="brand-title">HYPERSEARCH</span>
-      </div>
-      <span class="brand-badge">C++20</span>
+      <span class="brand-name">SearchEngine</span>
     </a>
 
-    <div class="nav-actions">
-      <div class="status-pill">
-        <div class="pulse-dot"></div>
-        <span>25k Docs Ready</span>
+    <div class="header-actions">
+      <div class="pill-status">
+        <span class="pulse-dot"></span>
+        <span>25,000+ Docs Ready</span>
       </div>
-      <a href="https://github.com/LearnerKg23/SearchEngine" target="_blank" class="github-btn">
+      <a href="https://github.com/LearnerKg23/SearchEngine" target="_blank" class="github-link">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
         </svg>
         <span>GitHub</span>
       </a>
     </div>
-  </nav>
+  </header>
 
-  <div class="container">
-    <!-- Hero Header -->
-    <div class="hero">
-      <h1>High-Performance Code Search</h1>
-      <p>Architected from scratch in C++ with custom binary inverted indexing, Okapi BM25 ranking, and real-time Trie autocomplete.</p>
-    </div>
+  <main class="content-wrapper">
+    <!-- Hero Headline (Matching "Hope Rise is Support" Editorial Style) -->
+    <div class="hero-badge-pill">Systems Architecture</div>
+    <h1 class="hero-headline">
+      Fast <span class="pill-tag">C++20</span> Search <br>Without Databases
+    </h1>
+    <p class="hero-subtitle">
+      Architected from scratch in modern C++ with positional inverted indexing, Okapi BM25 ranking, and real-time Trie autocomplete.
+    </p>
 
-    <!-- Search Box -->
-    <div class="search-wrapper">
-      <div class="search-container">
-        <svg class="search-icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <!-- Search Floating Card -->
+    <div class="search-card">
+      <div class="search-input-row">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#71777E" stroke-width="2.5" style="margin-left: 6px;">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
         <input type="text" id="search-input" class="search-input" 
-               placeholder="Search identifiers, phrases or boolean queries..." 
+               placeholder="Search code or keywords (e.g. 'parseHttpRequest', 'binary AND search')..." 
                autocomplete="off" spellcheck="false" autofocus>
-        <div class="search-shortcut">
-          <span class="kbd">Enter</span>
+        <button class="btn-search" onclick="triggerSearch()">
+          <span>Search</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Trie Dropdown -->
+      <div id="autocomplete-dropdown" class="autocomplete-dropdown"></div>
+
+      <!-- Quick Chips -->
+      <div class="search-footer-row">
+        <div class="chips-group">
+          <span class="chips-label">Popular:</span>
+          <button class="query-chip" onclick="quickQuery('parseHttpRequest')">⚡ parseHttpRequest</button>
+          <button class="query-chip" onclick="quickQuery('&quot;binary search&quot;')">⚡ "binary search"</button>
+          <button class="query-chip" onclick="quickQuery('search AND engine')">⚡ search AND engine</button>
+          <button class="query-chip" onclick="quickQuery('bm25')">⚡ bm25</button>
+          <button class="query-chip" onclick="quickQuery('trie')">⚡ trie</button>
         </div>
       </div>
-      <div id="autocomplete-dropdown" class="autocomplete-dropdown"></div>
     </div>
 
-    <!-- Clickable Example Query Chips -->
-    <div class="chips-row">
-      <span class="chips-label">Try:</span>
-      <button class="chip" onclick="executeQuickQuery('parseHttpRequest')">⚡ parseHttpRequest</button>
-      <button class="chip" onclick="executeQuickQuery('&quot;binary search&quot;')">⚡ "binary search"</button>
-      <button class="chip" onclick="executeQuickQuery('search AND engine')">⚡ search AND engine</button>
-      <button class="chip" onclick="executeQuickQuery('bm25')">⚡ bm25</button>
-      <button class="chip" onclick="executeQuickQuery('trie')">⚡ trie</button>
-      <button class="chip" onclick="executeQuickQuery('manifest NOT deleted')">⚡ manifest NOT deleted</button>
-    </div>
-
-    <!-- Telemetry Cards -->
-    <div class="telemetry-grid">
-      <div class="telemetry-card">
-        <span class="telemetry-label">Query Latency</span>
-        <span id="telemetry-latency" class="telemetry-value accent-green">0.00 ms</span>
-        <span class="telemetry-sub">&lt; 15ms target verified</span>
-      </div>
-      <div class="telemetry-card">
-        <span class="telemetry-label">Ranker</span>
-        <span class="telemetry-value accent-cyan">Okapi BM25</span>
-        <span class="telemetry-sub">k1=1.2, b=0.75</span>
-      </div>
-      <div class="telemetry-card">
-        <span class="telemetry-label">Top-K Complexity</span>
-        <span class="telemetry-value">O(N log K)</span>
-        <span class="telemetry-sub">Bounded Min-Heap</span>
-      </div>
-      <div class="telemetry-card">
-        <span class="telemetry-label">Autocomplete</span>
-        <span class="telemetry-value">1.70 µs</span>
-        <span class="telemetry-sub">In-Memory Prefix Trie</span>
-      </div>
+    <!-- Architecture Ticker (Matching the "Quick Donate / GoFundMe / Medtronic" sponsor bar style) -->
+    <div class="architecture-ticker">
+      <div class="ticker-item"><span class="ticker-dot"></span><span>OKAPI BM25 RANKING</span></div>
+      <div class="ticker-item"><span class="ticker-dot"></span><span>O(N log K) MIN-HEAP</span></div>
+      <div class="ticker-item"><span class="ticker-dot"></span><span>IN-MEMORY TRIE</span></div>
+      <div class="ticker-item"><span class="ticker-dot"></span><span>ZERO EXTERNAL DB</span></div>
+      <div class="ticker-item"><span class="ticker-dot"></span><span>INCREMENTAL TOMBSTONES</span></div>
     </div>
 
     <!-- Results Section -->
-    <div class="results-meta-bar">
-      <span id="results-count" class="results-count">Ready for query</span>
-      <span id="results-speed" class="results-speed" style="display: none;">0.00 ms</span>
-    </div>
+    <div class="results-wrapper">
+      <div class="results-header-bar">
+        <span id="results-count" class="results-count-text">Ready for search</span>
+        <span id="results-latency" class="latency-badge" style="display: none;">0.00 ms</span>
+      </div>
 
-    <div id="results-container" class="results-container">
-      <div class="empty-state">
-        <div class="empty-icon">🔍</div>
-        <h3>Search across the C++ Engine Codebase</h3>
-        <p style="margin-top: 6px; font-size: 0.85rem; color: var(--text-dim);">
-          Type any keyword, click one of the quick chips above, or use <code>AND</code>, <code>OR</code>, <code>NOT</code> operators.
-        </p>
+      <div id="results-list">
+        <div class="empty-results-box">
+          Type an identifier or click a quick chip to view BM25 ranked code results.
+        </div>
       </div>
     </div>
 
-    <footer>
-      <span>Zero External Databases • Custom Binary Storage Model</span>
-      <span>C++ Systems Engineering Project</span>
-    </footer>
-  </div>
+    <!-- 3 Bottom Feature Cards (Matching "Make a Donation / Get Support / Volunteer" layout) -->
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-circle">⚡</div>
+        <h3 class="feature-title">Sub-15ms Latency</h3>
+        <p class="feature-desc">
+          Evaluated across 25,000+ documents with a bounded Min-Heap top-K algorithm and two-pointer boolean intersection.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-circle">🌲</div>
+        <h3 class="feature-title">Real-Time Trie</h3>
+        <p class="feature-desc">
+          Prefix tree with pre-cached top completions per node, achieving 1.70 µs keystroke autocomplete latency.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-circle">💾</div>
+        <h3 class="feature-title">Zero-DB Storage</h3>
+        <p class="feature-desc">
+          Custom binary files (.bin) with magic bytes, sequential postings streaming, and soft-deletion tombstones.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <span>High-Performance Search Engine • C++ Systems Architecture</span>
+    <span>GitHub: <a href="https://github.com/LearnerKg23/SearchEngine" target="_blank">LearnerKg23/SearchEngine</a></span>
+  </footer>
 
   <script>
     const searchInput = document.getElementById('search-input');
     const dropdown = document.getElementById('autocomplete-dropdown');
-    const resultsContainer = document.getElementById('results-container');
+    const resultsList = document.getElementById('results-list');
     const resultsCount = document.getElementById('results-count');
-    const resultsSpeed = document.getElementById('results-speed');
-    const telemetryLatency = document.getElementById('telemetry-latency');
+    const resultsLatency = document.getElementById('results-latency');
 
     let debounceTimer = null;
     let currentFocus = -1;
 
-    // Real-time Trie Autocomplete
+    // Real-Time Autocomplete
     searchInput.addEventListener('input', () => {
       const val = searchInput.value.trim();
       clearTimeout(debounceTimer);
@@ -741,11 +758,8 @@
                 const item = document.createElement('div');
                 item.className = 'autocomplete-item';
                 item.innerHTML = `
-                  <div class="match-text">
-                    <span style="color: var(--primary);">↳</span>
-                    <span>${escapeHtml(s)}</span>
-                  </div>
-                  <span class="autocomplete-tag">Trie Node</span>
+                  <span>↳ ${escapeHtml(s)}</span>
+                  <span class="tag">Trie Node</span>
                 `;
                 item.addEventListener('click', () => {
                   words[words.length - 1] = s;
@@ -765,7 +779,6 @@
       }, 90);
     });
 
-    // Keyboard navigation in autocomplete
     searchInput.addEventListener('keydown', (e) => {
       const items = dropdown.getElementsByClassName('autocomplete-item');
       if (dropdown.style.display === 'block' && items.length > 0) {
@@ -809,77 +822,60 @@
       }
     });
 
-    function executeQuickQuery(query) {
+    function quickQuery(query) {
       searchInput.value = query;
       performSearch(query);
     }
 
-    function getFileExtensionBadge(path) {
-      if (path.endsWith('.hpp') || path.endsWith('.h')) return '<span class="file-icon-badge hpp">HPP</span>';
-      if (path.endsWith('.cpp') || path.endsWith('.cc')) return '<span class="file-icon-badge cpp">C++</span>';
-      if (path.endsWith('.md')) return '<span class="file-icon-badge md">MD</span>';
-      return '<span class="file-icon-badge cpp">SRC</span>';
+    function triggerSearch() {
+      performSearch(searchInput.value.trim());
     }
 
     function performSearch(query) {
       if (!query) return;
 
       resultsCount.textContent = 'Searching index...';
-      resultsSpeed.style.display = 'none';
+      resultsLatency.style.display = 'none';
 
       fetch(`/api/search?q=${encodeURIComponent(query)}&k=10`)
         .then(res => res.json())
         .then(data => {
           const lat = data.latency_ms.toFixed(2);
-          resultsSpeed.textContent = `⚡ ${lat} ms`;
-          resultsSpeed.style.display = 'inline-block';
-          telemetryLatency.textContent = `${lat} ms`;
+          resultsLatency.textContent = `⚡ ${lat} ms`;
+          resultsLatency.style.display = 'inline-block';
           resultsCount.textContent = `${data.total_hits} results found for "${query}"`;
 
           if (data.results.length === 0) {
-            resultsContainer.innerHTML = `
-              <div class="empty-state">
-                <div class="empty-icon">🚫</div>
-                <h3>No matching documents</h3>
-                <p style="margin-top: 6px;">Try another keyword or remove restrictive Boolean operators.</p>
+            resultsList.innerHTML = `
+              <div class="empty-results-box">
+                No matching documents found for "<strong>${escapeHtml(query)}</strong>".
               </div>`;
             return;
           }
 
           let html = '';
           data.results.forEach((r, idx) => {
-            const extBadge = getFileExtensionBadge(r.path);
             const scoreFormatted = r.score.toFixed(2);
             const snippet = r.snippet || `// File: ${r.path}`;
 
             html += `
               <div class="result-card">
-                <div class="result-header">
-                  <div class="result-path-group">
-                    <span class="rank-badge">#${idx + 1}</span>
-                    ${extBadge}
-                    <span class="result-path">${escapeHtml(r.path)}</span>
+                <div class="result-top-row">
+                  <div class="result-path-info">
+                    <span class="rank-num">#${idx + 1}</span>
+                    <span class="file-path-title">${escapeHtml(r.path)}</span>
                   </div>
-                  <div class="score-badge">
-                    <span>BM25:</span>
-                    <strong>${scoreFormatted}</strong>
-                  </div>
+                  <span class="bm25-pill">BM25: ${scoreFormatted}</span>
                 </div>
-                <div class="code-preview-window">
-                  <div class="code-preview-bar">
-                    <span>Source Preview</span>
-                    <span>DocID: ${r.doc_id}</span>
-                  </div>
-                  <div class="code-content">${highlightQuery(snippet, query)}</div>
-                </div>
+                <div class="code-preview-box">${highlightQuery(snippet, query)}</div>
               </div>`;
           });
 
-          resultsContainer.innerHTML = html;
+          resultsList.innerHTML = html;
         })
         .catch(err => {
           resultsCount.textContent = 'Connection error';
-          resultsContainer.innerHTML = `<div class="empty-state">Unable to connect to search engine backend.</div>`;
+          resultsList.innerHTML = `<div class="empty-results-box">Unable to reach C++ search engine backend.</div>`;
         });
     }
 
@@ -889,7 +885,7 @@
       cleanTerms.forEach(term => {
         try {
           const regex = new RegExp(`(${escapeRegex(term)})`, 'gi');
-          escaped = escaped.replace(regex, '<span class="highlight-term">$1</span>');
+          escaped = escaped.replace(regex, '<span class="highlight-match">$1</span>');
         } catch (e) {}
       });
       return escaped;
