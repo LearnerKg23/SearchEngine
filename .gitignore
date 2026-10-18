@@ -1,0 +1,23 @@
+# Build directories
+build/
+bin/
+out/
+.cache/
+
+# Binary search index data files (generated at runtime)
+.search_index/
+*.bin
+
+# Compiled binaries and object files
+*.o
+*.obj
+*.exe
+*.pdb
+*.ilk
+
+# IDE & Editor files
+.vscode/
+.vs/
+*.swp
+*.user
+.DS_Store
