@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High-Performance C++ Search Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090D16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 102, 241, 0.6);
+      --primary: #6366F1;
+      --primary-glow: rgba(99, 102, 241, 0.25);
+      --accent: #10B981;
+      --text: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --code-bg: #030712;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 20% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 80% 85%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .badge-container {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .badge.green {
+      color: #34D399;
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .badge.purple {
+      color: #A5B4FC;
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.25);
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #FFFFFF 30%, #9CA3AF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Search Box */
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-box {
+      width: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 20px 16px 50px;
+      font-size: 1.1rem;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .search-box:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--primary-glow), 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Autocomplete Dropdown */
+    .autocomplete-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #111827;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+      z-index: 50;
+      display: none;
+    }
+
+    .autocomplete-item {
+      padding: 10px 18px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: #E5E7EB;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s;
+    }
+
+    .autocomplete-item:hover, .autocomplete-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #A5B4FC;
+    }
+
+    .autocomplete-item .prefix-icon {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+
+    .latency-pill {
+      font-family: 'Fira Code', monospace;
+      color: #34D399;
+      font-weight: 600;
+    }
+
+    /* Results */
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .result-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .result-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .result-title {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #A5B4FC;
+      word-break: break-all;
+    }
+
+    .result-score {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 6px;
+      color: #C7D2FE;
+    }
+
+    .result-snippet {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #D1D5DB;
+      background: var(--code-bg);
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .highlight {
+      background: rgba(251, 191, 36, 0.25);
+      color: #FCD34D;
+      font-weight: 600;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: auto;
+      padding-top: 40px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge-container">
+        <span class="badge green">● Engine Online</span>
+        <span class="badge purple">Okapi BM25</span>
+        <span class="badge">O(N log K) Min-Heap</span>
+        <span class="badge">In-Memory Trie</span>
+      </div>
+      <h1>High-Performance Search Engine</h1>
+      <p class="subtitle">Built from scratch in C++ • Zero External Databases • Sub-15ms Latency</p>
+    </header>
+
+    <div class="search-wrapper">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="search-input" class="search-box" 
+             placeholder="Search code or keywords (e.g. 'parseHttpRequest', 'binary AND search')..." 
+             autocomplete="off">
+      <div id="autocomplete-dropdown" class="autocomplete-dropdown"></div>
+    </div>
+
+    <div class="stats-bar">
+      <span id="results-count">Type a query to search</span>
+      <span id="latency-metric" class="latency-pill"></span>
+    </div>
+
+    <div id="results" class="results-container">
+      <div class="empty-state">
+        Try searching for identifiers like <code>parseHttpRequest</code>, boolean queries like <code>search AND engine</code>, or quoted phrases like <code>"binary search"</code>.
+      </div>
+    </div>
+
+    <footer>
+      Built with C++ • Repository: <a href="https://github.com/LearnerKg23/SearchEngine" target="_blank">LearnerKg23/SearchEngine</a>
+    </footer>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById('search-input');
+    const dropdown = document.getElementById('autocomplete-dropdown');
+    const resultsContainer = document.getElementById('results');
+    const resultsCount = document.getElementById('results-count');
+    const latencyMetric = document.getElementById('latency-metric');
+
+    let debounceTimer = null;
+    let currentFocus = -1;
+
+    // Autocomplete on keyup
+    searchInput.addEventListener('input', (e) => {
+      const val = searchInput.value.trim();
+      clearTimeout(debounceTimer);
+
+      if (val.length < 2) {
+        dropdown.style.display = 'none';
+        return;
+      }
+
+      // Check last word for autocomplete
+      const words = val.split(/\s+/);
+      const lastWord = words[words.length - 1];
+
+      debounceTimer = setTimeout(() => {
+        fetch(`/api/autocomplete?prefix=${encodeURIComponent(lastWord)}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.suggestions && data.suggestions.length > 0) {
+              dropdown.innerHTML = '';
+              currentFocus = -1;
+              data.suggestions.forEach(s => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.innerHTML = `<span class="prefix-icon">↳</span> <span>${s}</span>`;
+                item.addEventListener('click', () => {
+                  words[words.length - 1] = s;
+                  searchInput.value = words.join(' ') + ' ';
+                  dropdown.style.display = 'none';
+                  searchInput.focus();
+                  performSearch(searchInput.value.trim());
+                });
+                dropdown.appendChild(item);
+              });
+              dropdown.style.display = 'block';
+            } else {
+              dropdown.style.display = 'none';
+            }
+          })
+          .catch(() => { dropdown.style.display = 'none'; });
+      }, 100);
+    });
+
+    // Keyboard navigation in autocomplete
+    searchInput.addEventListener('keydown', (e) => {
+      const items = dropdown.getElementsByClassName('autocomplete-item');
+      if (dropdown.style.display === 'block' && items.length > 0) {
+        if (e.key === 'ArrowDown') {
+          currentFocus++;
+          if (currentFocus >= items.length) currentFocus = 0;
+          setActive(items);
+          e.preventDefault();
+        } else if (e.key === 'ArrowUp') {
+          currentFocus--;
+          if (currentFocus < 0) currentFocus = items.length - 1;
+          setActive(items);
+          e.preventDefault();
+        } else if (e.key === 'Enter') {
+          if (currentFocus > -1) {
+            items[currentFocus].click();
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+
+      if (e.key === 'Enter') {
+        dropdown.style.display = 'none';
+        performSearch(searchInput.value.trim());
+      } else if (e.key === 'Escape') {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    function setActive(items) {
+      for (let i = 0; i < items.length; i++) items[i].classList.remove('active');
+      if (currentFocus >= 0 && currentFocus < items.length) {
+        items[currentFocus].classList.add('active');
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    function performSearch(query) {
+      if (!query) return;
+
+      resultsCount.textContent = 'Searching...';
+      latencyMetric.textContent = '';
+
+      fetch(`/api/search?q=${encodeURIComponent(query)}&k=10`)
+        .then(res => res.json())
+        .then(data => {
+          latencyMetric.textContent = `${data.latency_ms.toFixed(2)} ms`;
+          resultsCount.textContent = `${data.total_hits} results found`;
+
+          if (data.results.length === 0) {
+            resultsContainer.innerHTML = `
+              <div class="empty-state">
+                No matching documents found for "<strong>${escapeHtml(query)}</strong>".
+              </div>`;
+            return;
+          }
+
+          let html = '';
+          data.results.forEach((r, idx) => {
+            html += `
+              <div class="result-card">
+                <div class="result-header">
+                  <span class="result-title">#${idx + 1} • ${escapeHtml(r.path)}</span>
+                  <span class="result-score">BM25: ${r.score.toFixed(2)}</span>
+                </div>
+                <div class="result-snippet">${escapeHtml(r.snippet || '[No preview available]')}</div>
+              </div>`;
+          });
+          resultsContainer.innerHTML = html;
+        })
+        .catch(err => {
+          resultsCount.textContent = 'Error connecting to search engine';
+          resultsContainer.innerHTML = `<div class="empty-state">Connection error. Is the server running?</div>`;
+        });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>

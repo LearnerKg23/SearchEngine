@@ -24,6 +24,16 @@ add_library(search_engine_core
 add_executable(search_engine src/main.cpp)
 target_link_libraries(search_engine PRIVATE search_engine_core)
 
+# C++ HTTP REST API Server & Web UI
+add_executable(server src/server.cpp)
+target_link_libraries(server PRIVATE search_engine_core)
+if (WIN32)
+    target_link_libraries(server PRIVATE ws2_32)
+endif()
+if (UNIX)
+    target_link_libraries(server PRIVATE pthread)
+endif()
+
 # 25,000+ Document Benchmark Runner
 add_executable(benchmark_runner benchmarks/benchmark_runner.cpp)
 target_link_libraries(benchmark_runner PRIVATE search_engine_core)

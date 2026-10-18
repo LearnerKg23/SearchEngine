@@ -1,0 +1,8 @@
+.git
+bin/
+build/
+.search_index/
+*.bin
+*.exe
+*.o
+*.obj
